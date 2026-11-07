@@ -2,6 +2,7 @@ package com.example.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.History
@@ -51,6 +51,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -72,6 +73,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -87,15 +90,18 @@ import com.example.data.model.TransactionType
 import com.example.data.model.buildMonthlySummaries
 import com.example.data.model.currentMonthYearString
 import com.example.data.model.formatMonthYearLabel
+import com.example.ui.theme.AppTheme
+import com.example.ui.theme.Champagne400
+import com.example.ui.theme.Champagne500
 import com.example.ui.theme.Crimson600
-import com.example.ui.theme.Emerald100
-import com.example.ui.theme.Emerald600
-import com.example.ui.theme.Emerald700
-import com.example.ui.theme.Emerald800
-import com.example.ui.theme.Emerald900
-import com.example.ui.theme.Emerald950
-import com.example.ui.theme.Gold400
-import com.example.ui.theme.Gold500
+import com.example.ui.theme.Cyan300
+import com.example.ui.theme.Cyan400
+import com.example.ui.theme.Sapphire100
+import com.example.ui.theme.Sapphire600
+import com.example.ui.theme.Sapphire700
+import com.example.ui.theme.Sapphire800
+import com.example.ui.theme.Sapphire900
+import com.example.ui.theme.Sapphire950
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -143,14 +149,14 @@ fun MemberDashboardScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Friendship Zone (2005)",
+                            text = "Friendship Zone Passbook",
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White
                         )
                         Text(
-                            text = "Kalir Bazar • Member ID: ${member.memberId}",
+                            text = "Kalir Bazar • ID: ${member.memberId}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Gold400
+                            color = Cyan300
                         )
                     }
                 },
@@ -168,26 +174,27 @@ fun MemberDashboardScreen(
                 },
                 actions = {
                     Surface(
-                        color = Emerald800,
+                        color = Cyan400.copy(alpha = 0.16f),
                         shape = RoundedCornerShape(50),
+                        border = BorderStroke(1.dp, Cyan400.copy(alpha = 0.4f)),
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { onToggleCiphertext() }
                             .testTag("toggle_encryption_inspector_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.EnhancedEncryption,
                                 contentDescription = "Toggle Encryption Inspector",
-                                tint = Gold400,
-                                modifier = Modifier.size(16.dp)
+                                tint = Cyan300,
+                                modifier = Modifier.size(15.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = if (showRawCiphertext) "Ciphertext" else "AES-256",
+                                text = if (showRawCiphertext) "ENCv1" else "AES-256",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White
                             )
@@ -195,12 +202,15 @@ fun MemberDashboardScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Emerald950
+                    containerColor = Sapphire950
                 )
             )
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                tonalElevation = AppTheme.elevation.level2
+            ) {
                 NavigationBarItem(
                     selected = selectedBottomTab == 0,
                     onClick = { selectedBottomTab = 0 },
@@ -208,10 +218,10 @@ fun MemberDashboardScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedBottomTab == 0) Icons.Filled.AccountBalanceWallet else Icons.Outlined.AccountBalanceWallet,
-                            contentDescription = "Dashboard"
+                            contentDescription = "Passbook"
                         )
                     },
-                    label = { Text("Dashboard") }
+                    label = { Text("Passbook") }
                 )
                 NavigationBarItem(
                     selected = selectedBottomTab == 1,
@@ -220,10 +230,10 @@ fun MemberDashboardScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedBottomTab == 1) Icons.Filled.History else Icons.Outlined.History,
-                            contentDescription = "Transactions"
+                            contentDescription = "Ledger"
                         )
                     },
-                    label = { Text("Transactions") }
+                    label = { Text("Ledger") }
                 )
                 NavigationBarItem(
                     selected = selectedBottomTab == 2,
@@ -232,10 +242,10 @@ fun MemberDashboardScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedBottomTab == 2) Icons.Filled.Person else Icons.Outlined.Person,
-                            contentDescription = "Profile & PIN"
+                            contentDescription = "Vault Profile"
                         )
                     },
-                    label = { Text("Profile & PIN") }
+                    label = { Text("Vault & PIN") }
                 )
             }
         }
@@ -320,23 +330,35 @@ private fun MemberOverviewTab(
             }
         }
 
-        // Prominent Total Deposited Money Hero Card
+        // Neo-Banking Holographic Total Deposited Money Card
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("member_total_deposit_card"),
-                shape = RoundedCornerShape(28.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                shape = RoundedCornerShape(30.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level4)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             Brush.linearGradient(
-                                colors = listOf(Emerald950, Emerald800, Emerald900)
+                                colors = listOf(Sapphire950, Sapphire800, Color(0xFF1E1B4B))
                             )
                         )
+                        .drawBehind {
+                            drawCircle(
+                                color = Cyan400.copy(alpha = 0.14f),
+                                radius = size.width * 0.45f,
+                                center = Offset(size.width * 0.92f, size.height * 0.18f)
+                            )
+                            drawCircle(
+                                color = Champagne400.copy(alpha = 0.08f),
+                                radius = size.width * 0.35f,
+                                center = Offset(size.width * 0.1f, size.height * 0.9f)
+                            )
+                        }
                         .padding(24.dp)
                 ) {
                     Row(
@@ -344,22 +366,20 @@ private fun MemberOverviewTab(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Surface(
+                            color = Color.White.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+                        ) {
                             Text(
-                                text = if (showRawCiphertext) member.encryptedNameRaw else member.name,
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = Color.White,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "Member ID: ${member.memberId}",
+                                text = "ID • ${member.memberId}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Gold400
+                                color = Cyan300,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                             )
                         }
                         Surface(
-                            color = Color.White.copy(alpha = 0.14f),
+                            color = Cyan400.copy(alpha = 0.18f),
                             shape = RoundedCornerShape(50)
                         ) {
                             Row(
@@ -369,12 +389,12 @@ private fun MemberOverviewTab(
                                 Icon(
                                     imageVector = Icons.Default.CloudDone,
                                     contentDescription = null,
-                                    tint = Gold400,
-                                    modifier = Modifier.size(15.dp)
+                                    tint = Cyan300,
+                                    modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = "LIVE SYNC",
+                                    text = "REAL-TIME SYNC",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.White
                                 )
@@ -382,97 +402,147 @@ private fun MemberOverviewTab(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(22.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Text(
+                        text = if (showRawCiphertext) member.encryptedNameRaw else member.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White.copy(alpha = 0.9f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
                         text = "TOTAL DEPOSITED MONEY",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.75f)
+                        color = Cyan300
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "৳ ${formatCurrency(member.totalDeposited)}",
                         style = MaterialTheme.typography.displayLarge,
-                        color = Gold400,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
+                    // Side-by-side Frosted Glass Stat Pills
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column {
-                            Text(
-                                text = "Net Savings Balance",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.75f)
-                            )
-                            Text(
-                                text = "৳ ${formatCurrency(member.netBalance)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color.White
-                            )
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            color = Color.White.copy(alpha = 0.09f),
+                            shape = RoundedCornerShape(18.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.14f))
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Text(
+                                    text = "Net Balance",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "৳ ${formatCurrency(member.netBalance)}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Cyan300
+                                )
+                            }
                         }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "Total Withdrawn",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.75f)
-                            )
-                            Text(
-                                text = "৳ ${formatCurrency(member.totalWithdrawn)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color(0xFFFCA5A5)
-                            )
+
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            color = Color.White.copy(alpha = 0.09f),
+                            shape = RoundedCornerShape(18.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.14f))
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Text(
+                                    text = "Total Withdrawn",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "৳ ${formatCurrency(member.totalWithdrawn)}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color(0xFFFDA4AF)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
-        // Current Month Highlights Card
+        // Current Month Cashflow Pulse Card
         item {
+            val totalVolume = (currentMonthSummary.totalDeposited + currentMonthSummary.totalWithdrawn).coerceAtLeast(1L)
+            val depositRatio = currentMonthSummary.totalDeposited.toFloat() / totalVolume.toFloat()
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("current_month_summary_card"),
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.CalendarMonth,
-                                contentDescription = null,
-                                tint = Emerald700
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Sapphire100),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = Sapphire700
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Current Month (${currentMonthSummary.displayTitle})",
+                                    text = "Current Month • ${currentMonthSummary.displayTitle}",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "${currentMonthSummary.transactionCount} transaction(s) recorded this month",
+                                    text = "${currentMonthSummary.transactionCount} ledger entry(s) this month",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    LinearProgressIndicator(
+                        progress = { if (currentMonthSummary.transactionCount == 0) 0.5f else depositRatio },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(50)),
+                        color = Sapphire600,
+                        trackColor = Color(0xFFFFE4E6)
+                    )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
@@ -482,32 +552,32 @@ private fun MemberOverviewTab(
                     ) {
                         Surface(
                             modifier = Modifier.weight(1f),
-                            color = Emerald100.copy(alpha = 0.55f),
+                            color = Sapphire100.copy(alpha = 0.55f),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Text(
-                                    text = "Month Deposits",
+                                    text = "Deposited",
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = Emerald900
+                                    color = Sapphire800
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "+৳${formatCurrency(currentMonthSummary.totalDeposited)}",
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = Emerald800
+                                    color = Sapphire700
                                 )
                             }
                         }
 
                         Surface(
                             modifier = Modifier.weight(1f),
-                            color = Color(0xFFFEE2E2).copy(alpha = 0.65f),
+                            color = Color(0xFFFFE4E6).copy(alpha = 0.65f),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Text(
-                                    text = "Month Withdrawals",
+                                    text = "Withdrawn",
                                     style = MaterialTheme.typography.labelLarge,
                                     color = Crimson600
                                 )
@@ -532,14 +602,20 @@ private fun MemberOverviewTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Monthly Transaction History",
+                    text = "Monthly Statements",
                     style = MaterialTheme.typography.titleLarge
                 )
-                Text(
-                    text = "${monthlySummaries.size} Month(s)",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(
+                        text = "${monthlySummaries.size} Month(s)",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
             }
         }
 
@@ -547,7 +623,7 @@ private fun MemberOverviewTab(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
                     )
@@ -566,12 +642,12 @@ private fun MemberOverviewTab(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "No Transactions Recorded Yet",
+                            text = "No Monthly Statements Yet",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "Deposits and withdrawals added by the Kalir Bazar Admin will appear here in real time.",
+                            text = "Deposits and withdrawals recorded by the Kalir Bazar Admin will sync here automatically.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -596,14 +672,14 @@ private fun MemberOverviewTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Latest Ledger Entries",
+                        text = "Recent Passbook Activity",
                         style = MaterialTheme.typography.titleLarge
                     )
                     TextButton(
                         onClick = onViewAllTransactions,
                         modifier = Modifier.testTag("view_all_transactions_button")
                     ) {
-                        Text("See All")
+                        Text("Full Ledger")
                     }
                 }
             }
@@ -630,29 +706,47 @@ fun MonthlySummaryExpandableCard(
             .fillMaxWidth()
             .clickable { expanded = !expanded }
             .testTag("monthly_summary_card_${summary.monthYear}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(18.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = summary.displayTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${summary.transactionCount} transaction(s) • Net: ৳${formatCurrency(summary.netFlow)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Surface(
+                        color = Sapphire100,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = summary.monthYear,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Sapphire800,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = summary.displayTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${summary.transactionCount} entries • Net: ৳${formatCurrency(summary.netFlow)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -660,7 +754,7 @@ fun MonthlySummaryExpandableCard(
                         Text(
                             text = "+৳${formatCurrency(summary.totalDeposited)}",
                             style = MaterialTheme.typography.labelLarge,
-                            color = Emerald700,
+                            color = Sapphire700,
                             fontWeight = FontWeight.Bold
                         )
                         if (summary.totalWithdrawn > 0) {
@@ -683,7 +777,7 @@ fun MonthlySummaryExpandableCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        .padding(top = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     HorizontalDivider()
@@ -728,7 +822,7 @@ private fun MemberTransactionsTab(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                 )
@@ -740,11 +834,11 @@ private fun MemberTransactionsTab(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = null,
-                        tint = Emerald800
+                        tint = Sapphire800
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Read-Only Ledger: Only Kalir Bazar Admins can add or edit transaction records.",
+                        text = "Verified Passbook: Only Kalir Bazar Admins can add or edit transaction entries.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -757,6 +851,7 @@ private fun MemberTransactionsTab(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Search by Month (YYYY-MM), Receipt #, or Note") },
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -823,35 +918,36 @@ fun TransactionRowCard(
                 if (onEditClick != null) Modifier.clickable { onEditClick() } else Modifier
             )
             .testTag("transaction_card_${transaction.id}"),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(
-                        if (isDeposit) Emerald100 else Color(0xFFFEE2E2)
+                        if (isDeposit) Sapphire100 else Color(0xFFFFE4E6)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = if (isDeposit) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
                     contentDescription = transaction.type.label,
-                    tint = if (isDeposit) Emerald800 else Crimson600
+                    tint = if (isDeposit) Sapphire700 else Crimson600
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -861,8 +957,9 @@ fun TransactionRowCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "${transaction.memberId} • ${transaction.receiptNumber} • $formattedDate (${transaction.monthYear})",
+                    text = "${transaction.memberId} • ${transaction.receiptNumber} • $formattedDate",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -874,14 +971,20 @@ fun TransactionRowCard(
                 Text(
                     text = "${if (isDeposit) "+" else "-"}৳${formatCurrency(transaction.amount)}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (isDeposit) Emerald700 else Crimson600,
+                    color = if (isDeposit) Sapphire700 else Crimson600,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = transaction.type.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    color = if (isDeposit) Sapphire100.copy(alpha = 0.6f) else Color(0xFFFFE4E6),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text(
+                        text = transaction.monthYear,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isDeposit) Sapphire800 else Crimson600,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
             }
         }
     }
@@ -905,12 +1008,12 @@ private fun MemberProfileAndPinTab(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Emerald900
+                    containerColor = Sapphire950
                 )
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -920,20 +1023,20 @@ private fun MemberProfileAndPinTab(
                             Icon(
                                 imageVector = Icons.Default.Security,
                                 contentDescription = null,
-                                tint = Gold400
+                                tint = Cyan300
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "AES-256-GCM Encryption Inspector",
+                                    text = "AES-256-GCM Vault Inspector",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "${member.authorizedUids.size} device(s) synced with this account",
+                                    text = "${member.authorizedUids.size} device(s) synced with this passbook",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White.copy(alpha = 0.8f)
+                                    color = Color.White.copy(alpha = 0.78f)
                                 )
                             }
                         }
@@ -946,12 +1049,12 @@ private fun MemberProfileAndPinTab(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = if (showRawCiphertext) {
-                            "Showing raw AES-256-GCM ciphertext (ENCv1:...) stored at rest in Firebase Firestore."
+                            "Inspecting raw AES-256-GCM ciphertext (ENCv1:...) stored at rest in Firebase Firestore."
                         } else {
-                            "All personal information, NID numbers, and nominee records are decrypted locally in memory."
+                            "All personal information, NID numbers, and nominee records are decrypted locally on-device."
                         },
                         style = MaterialTheme.typography.labelSmall,
-                        color = Gold400
+                        color = Cyan300
                     )
                 }
             }
@@ -961,11 +1064,12 @@ private fun MemberProfileAndPinTab(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
             ) {
                 Row(
                     modifier = Modifier
@@ -976,12 +1080,12 @@ private fun MemberProfileAndPinTab(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Member Login PIN",
+                            text = "Multi-Device Login PIN",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "You can change your login PIN at any time. Your new PIN will sync across all devices.",
+                            text = "Change your secret PIN anytime. Immediately updates across all connected devices.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -990,9 +1094,10 @@ private fun MemberProfileAndPinTab(
                     Button(
                         onClick = onOpenChangePinDialog,
                         modifier = Modifier.testTag("change_pin_button"),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Gold500,
-                            contentColor = Emerald950
+                            containerColor = Champagne500,
+                            contentColor = Sapphire950
                         )
                     ) {
                         Icon(
@@ -1011,18 +1116,19 @@ private fun MemberProfileAndPinTab(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
             ) {
                 Column(
-                    modifier = Modifier.padding(18.dp),
+                    modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "Member Profile Information (Admin Verified)",
+                        text = "Member Identity & Nominee Record",
                         style = MaterialTheme.typography.titleLarge
                     )
                     ProfileFieldRow("Member ID", member.memberId)
@@ -1034,19 +1140,16 @@ private fun MemberProfileAndPinTab(
                         "Mobile Number",
                         if (showRawCiphertext) member.encryptedMobileRaw else member.mobileNumber
                     )
-                    ProfileFieldRow(
-                        "Address",
-                        member.address
-                    )
+                    ProfileFieldRow("Address", member.address)
                     ProfileFieldRow(
                         "NID Number",
                         if (showRawCiphertext) member.encryptedNidRaw else member.nidNumber
                     )
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
 
                     Text(
-                        text = "Nominee Information",
+                        text = "Designated Nominee",
                         style = MaterialTheme.typography.titleLarge
                     )
                     ProfileFieldRow("Nominee Name", member.nomineeName)
@@ -1060,18 +1163,25 @@ private fun MemberProfileAndPinTab(
 
 @Composable
 private fun ProfileFieldRow(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = value.ifBlank { "Not specified" },
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+            Text(
+                text = label.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value.ifBlank { "Not specified" },
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -84,15 +85,16 @@ import com.example.data.model.DecryptedTransaction
 import com.example.data.model.TransactionType
 import com.example.data.model.buildMonthlySummaries
 import com.example.data.model.currentMonthYearString
+import com.example.ui.theme.AppTheme
+import com.example.ui.theme.Champagne500
 import com.example.ui.theme.Crimson600
-import com.example.ui.theme.Emerald100
-import com.example.ui.theme.Emerald700
-import com.example.ui.theme.Emerald800
-import com.example.ui.theme.Emerald900
-import com.example.ui.theme.Emerald950
-import com.example.ui.theme.Gold400
-import com.example.ui.theme.Gold500
-import com.example.ui.theme.Gold600
+import com.example.ui.theme.Cyan300
+import com.example.ui.theme.Cyan400
+import com.example.ui.theme.Sapphire100
+import com.example.ui.theme.Sapphire700
+import com.example.ui.theme.Sapphire800
+import com.example.ui.theme.Sapphire900
+import com.example.ui.theme.Sapphire950
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,14 +167,14 @@ fun AdminConsoleScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Admin Console • Kalir Bazar",
+                            text = "Executive Admin Console",
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White
                         )
                         Text(
                             text = "Friendship Zone (2005) • ${members.size} Members",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Gold400
+                            color = Cyan300
                         )
                     }
                 },
@@ -190,26 +192,27 @@ fun AdminConsoleScreen(
                 },
                 actions = {
                     Surface(
-                        color = Emerald800,
+                        color = Cyan400.copy(alpha = 0.16f),
                         shape = RoundedCornerShape(50),
+                        border = BorderStroke(1.dp, Cyan400.copy(alpha = 0.4f)),
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { onToggleCiphertext() }
                             .testTag("admin_encryption_toggle")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.EnhancedEncryption,
                                 contentDescription = "Toggle Encryption View",
-                                tint = Gold400,
-                                modifier = Modifier.size(16.dp)
+                                tint = Cyan300,
+                                modifier = Modifier.size(15.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = if (showRawCiphertext) "Ciphertext" else "AES-256",
+                                text = if (showRawCiphertext) "ENCv1" else "AES-256",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White
                             )
@@ -217,7 +220,7 @@ fun AdminConsoleScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Emerald950
+                    containerColor = Sapphire950
                 )
             )
         },
@@ -226,26 +229,31 @@ fun AdminConsoleScreen(
                 0 -> ExtendedFloatingActionButton(
                     onClick = { showCreateMemberDialog = true },
                     modifier = Modifier.testTag("create_member_fab"),
-                    containerColor = Gold500,
-                    contentColor = Emerald950,
+                    shape = RoundedCornerShape(50),
+                    containerColor = Cyan400,
+                    contentColor = Sapphire950,
                     icon = { Icon(Icons.Default.PersonAdd, contentDescription = null) },
-                    text = { Text("Create Member", fontWeight = FontWeight.Bold) }
+                    text = { Text("New Member", fontWeight = FontWeight.Bold) }
                 )
 
                 1 -> if (members.isNotEmpty()) {
                     ExtendedFloatingActionButton(
                         onClick = { showAddTxDialog = true },
                         modifier = Modifier.testTag("add_transaction_fab"),
-                        containerColor = Emerald900,
-                        contentColor = Color.White,
+                        shape = RoundedCornerShape(50),
+                        containerColor = Champagne500,
+                        contentColor = Sapphire950,
                         icon = { Icon(Icons.Default.AddCard, contentDescription = null) },
-                        text = { Text("Add Transaction", fontWeight = FontWeight.Bold) }
+                        text = { Text("Add Entry", fontWeight = FontWeight.Bold) }
                     )
                 }
             }
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                tonalElevation = AppTheme.elevation.level2
+            ) {
                 NavigationBarItem(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
@@ -256,7 +264,7 @@ fun AdminConsoleScreen(
                             contentDescription = "Members"
                         )
                     },
-                    label = { Text("Members (${members.size})") }
+                    label = { Text("Directory (${members.size})") }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
@@ -268,7 +276,7 @@ fun AdminConsoleScreen(
                             contentDescription = "Transactions"
                         )
                     },
-                    label = { Text("Transactions (${transactions.size})") }
+                    label = { Text("Ledger (${transactions.size})") }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
@@ -277,10 +285,10 @@ fun AdminConsoleScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedTab == 2) Icons.Filled.Assessment else Icons.Outlined.Assessment,
-                            contentDescription = "Monthly Ledger"
+                            contentDescription = "Monthly Audit"
                         )
                     },
-                    label = { Text("Monthly Ledger") }
+                    label = { Text("Monthly Audit") }
                 )
             }
         }
@@ -450,27 +458,27 @@ private fun AdminMembersTab(
             }
         }
 
-        // Cooperative Summary Banner
+        // Executive Treasury KPI Card
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                shape = RoundedCornerShape(28.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level3)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             Brush.linearGradient(
-                                colors = listOf(Emerald950, Emerald800)
+                                colors = listOf(Sapphire950, Sapphire900, Sapphire800)
                             )
                         )
-                        .padding(20.dp)
+                        .padding(22.dp)
                 ) {
                     Text(
-                        text = "FRIENDSHIP ZONE (2005) • TOTAL TREASURY",
+                        text = "KALIR BAZAR • NET COOPERATIVE TREASURY",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Gold400
+                        color = Cyan300
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -479,34 +487,48 @@ private fun AdminMembersTab(
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column {
-                            Text(
-                                text = "Cumulative Deposits",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.75f)
-                            )
-                            Text(
-                                text = "+৳${formatCurrency(totalDeposits)}",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Gold400
-                            )
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            color = Color.White.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "Total Deposits",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
+                                Text(
+                                    text = "+৳${formatCurrency(totalDeposits)}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Cyan300,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "Cumulative Withdrawals",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.75f)
-                            )
-                            Text(
-                                text = "-৳${formatCurrency(totalWithdrawals)}",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color(0xFFFCA5A5)
-                            )
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            color = Color.White.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "Withdrawals",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
+                                Text(
+                                    text = "-৳${formatCurrency(totalWithdrawals)}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color(0xFFFDA4AF),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
@@ -518,6 +540,7 @@ private fun AdminMembersTab(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Search Members by Name, Member ID, or Mobile") },
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -529,7 +552,7 @@ private fun AdminMembersTab(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     )
@@ -541,13 +564,13 @@ private fun AdminMembersTab(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "No Member Profiles Yet",
+                            text = "No Member Profiles Found",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Tap 'Create Member' below to register a member profile & account with AES-256-GCM encryption.",
+                            text = "Tap 'New Member' below to register a member profile & account with AES-256-GCM encryption.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -580,71 +603,91 @@ private fun AdminMemberCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("admin_member_card_${member.memberId}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(18.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Surface(
-                        color = Emerald100,
-                        shape = RoundedCornerShape(8.dp)
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(CircleShape)
+                            .background(Sapphire900),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = member.memberId,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Emerald900,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            text = member.name.take(1).uppercase(),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Cyan300
                         )
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = if (showRawCiphertext) member.encryptedNameRaw else member.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "Mobile: ${if (showRawCiphertext) member.encryptedMobileRaw else member.mobileNumber}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "NID: ${if (showRawCiphertext) member.encryptedNidRaw else member.nidNumber} • Nominee: ${member.nomineeName}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Surface(
+                            color = Sapphire100,
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = member.memberId,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Sapphire800,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = if (showRawCiphertext) member.encryptedNameRaw else member.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Mobile: ${if (showRawCiphertext) member.encryptedMobileRaw else member.mobileNumber}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "NID: ${if (showRawCiphertext) member.encryptedNidRaw else member.nidNumber} • Nominee: ${member.nomineeName}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "৳${formatCurrency(member.totalDeposited)}",
                         style = MaterialTheme.typography.titleLarge,
-                        color = Emerald700,
+                        color = Sapphire700,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Total Deposited",
+                        text = "Deposited",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             HorizontalDivider()
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -655,12 +698,13 @@ private fun AdminMemberCard(
                     onClick = onViewDashboard,
                     modifier = Modifier.testTag("preview_member_dashboard_${member.memberId}")
                 ) {
-                    Text("View Dashboard")
+                    Text("Passbook")
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
                         onClick = onEdit,
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier.testTag("edit_member_${member.memberId}")
                     ) {
                         Icon(
@@ -673,9 +717,10 @@ private fun AdminMemberCard(
                     }
                     Button(
                         onClick = onAddTransaction,
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier.testTag("quick_tx_${member.memberId}"),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Emerald900,
+                            containerColor = Sapphire800,
                             contentColor = Color.White
                         )
                     ) {
@@ -745,7 +790,7 @@ private fun AdminTransactionsTab(
 
         item {
             Text(
-                text = "Tap any transaction below to edit its amount, type, month, or remarks.",
+                text = "Tap any ledger entry below to edit its amount, type, accounting month, or remarks.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -756,6 +801,7 @@ private fun AdminTransactionsTab(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Filter by Member ID, Name, Month (YYYY-MM), or Receipt") },
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -830,29 +876,30 @@ private fun AdminMonthlyLedgerTab(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
             ) {
                 Column(
-                    modifier = Modifier.padding(18.dp),
+                    modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Cooperative Monthly Ledger & Encryption Status",
+                        text = "Cooperative Monthly Audit & Vault Status",
                         style = MaterialTheme.typography.titleLarge
                     )
                     Text(
-                        text = "Active Members: $memberCount • Total Transactions: ${transactions.size}",
+                        text = "Registered Members: $memberCount • Total Entries: ${transactions.size}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "All records are encrypted at rest using AES-256-GCM (ENCv1) and synced in real time via Firebase Firestore Enterprise.",
+                        text = "All member PII and transaction notes are encrypted at rest with AES-256-GCM (ENCv1) and synchronized via Firebase Firestore.",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Emerald700
+                        color = Sapphire700
                     )
                 }
             }

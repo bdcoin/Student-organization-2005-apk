@@ -3,8 +3,10 @@ package com.example.ui
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +29,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.EnhancedEncryption
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -64,12 +69,12 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import com.example.R
-import com.example.ui.theme.Emerald500
-import com.example.ui.theme.Emerald800
-import com.example.ui.theme.Emerald900
-import com.example.ui.theme.Emerald950
-import com.example.ui.theme.Gold400
-import com.example.ui.theme.Gold500
+import com.example.ui.theme.Cyan300
+import com.example.ui.theme.Cyan400
+import com.example.ui.theme.Sapphire600
+import com.example.ui.theme.Sapphire800
+import com.example.ui.theme.Sapphire900
+import com.example.ui.theme.Sapphire950
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -215,9 +220,25 @@ fun AuthScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Emerald950, Emerald900, Color(0xFF042F2E))
+                    colors = listOf(Sapphire950, Sapphire900, Color(0xFF111827))
                 )
             )
+            .drawBehind {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Cyan400.copy(alpha = 0.16f), Color.Transparent),
+                        center = Offset(size.width * 0.85f, size.height * 0.12f),
+                        radius = size.width * 0.7f
+                    )
+                )
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Sapphire600.copy(alpha = 0.22f), Color.Transparent),
+                        center = Offset(size.width * 0.15f, size.height * 0.82f),
+                        radius = size.width * 0.75f
+                    )
+                )
+            }
             .windowInsetsPadding(WindowInsets.safeDrawing),
         contentAlignment = Alignment.Center
     ) {
@@ -226,16 +247,65 @@ fun AuthScreen(
                 .fillMaxWidth()
                 .widthIn(max = 520.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 20.dp),
+                .padding(horizontal = 22.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Hero Banner Card
+            // Top Pill Badge
+            Surface(
+                color = Cyan400.copy(alpha = 0.14f),
+                shape = RoundedCornerShape(50),
+                border = BorderStroke(1.dp, Cyan400.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.VerifiedUser,
+                        contentDescription = null,
+                        tint = Cyan300,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "KALIR BAZAR • EST. 2005 • DIGITAL PASSBOOK",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Cyan300
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Friendship Zone",
+                style = MaterialTheme.typography.displayLarge,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Next-Gen Encrypted Cooperative Savings & Member Ledger",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.72f),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Framed Visual Showcase Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(185.dp)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(Cyan400.copy(alpha = 0.5f), Color.White.copy(alpha = 0.1f))
+                        ),
+                        shape = RoundedCornerShape(28.dp)
+                    ),
                 shape = RoundedCornerShape(28.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Image(
@@ -250,87 +320,114 @@ fun AuthScreen(
                             .background(
                                 Brush.verticalGradient(
                                     colors = listOf(
-                                        Color.Transparent,
-                                        Emerald950.copy(alpha = 0.85f)
+                                        Sapphire950.copy(alpha = 0.25f),
+                                        Sapphire950.copy(alpha = 0.92f)
                                     )
                                 )
                             )
                     )
-                    Column(
+                    Row(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(20.dp)
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        Surface(
-                            color = Gold500.copy(alpha = 0.22f),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.VerifiedUser,
-                                    contentDescription = null,
-                                    tint = Gold400,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "EST. 2005 • KALIR BAZAR",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Gold400
-                                )
-                            }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "FRIENDSHIP ZONE (2005)",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Cyan300
+                            )
+                            Text(
+                                text = "Kalir Bazar Treasury",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.White
+                            )
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Surface(
+                            color = Sapphire600.copy(alpha = 0.85f),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text(
+                                text = "AES-256-GCM",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // 2-Column Modern Bento Feature Grid
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                BentoFeatureTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.EnhancedEncryption,
+                    title = "Zero-Trust Vault",
+                    subtitle = "NIDs, nominees & balances encrypted at rest."
+                )
+                BentoFeatureTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.CloudSync,
+                    title = "Multi-Device",
+                    subtitle = "Instant sync with Member ID or Mobile & PIN."
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.06f)
+                ),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Sapphire800),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Groups,
+                            contentDescription = null,
+                            tint = Cyan300,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Friendship Zone (2005)",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White
+                            text = "Admin-Controlled Passbook & Ledger",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "Kalir Bazar Cooperative Savings & Member Vault",
+                            text = "Live deposit totals & monthly summaries. Only verified Admins can modify records.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.85f)
+                            color = Color.White.copy(alpha = 0.7f)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Security & Sync Feature Cards
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.08f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    FeatureRow(
-                        icon = Icons.Default.EnhancedEncryption,
-                        title = "AES-256-GCM Encrypted Vault",
-                        subtitle = "All member profiles, NIDs, nominee records, and transaction notes are encrypted at rest and in transit."
-                    )
-                    FeatureRow(
-                        icon = Icons.Default.CloudSync,
-                        title = "Instant Multi-Device Firebase Sync",
-                        subtitle = "Log in from multiple devices using your Member ID or Mobile Number and PIN with real-time ledger updates."
-                    )
-                    FeatureRow(
-                        icon = Icons.Default.Groups,
-                        title = "Admin-Verified Member Ledger",
-                        subtitle = "View total deposited money and monthly transaction summaries. Only verified Admins can edit profiles or transactions."
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             if (errorMessage != null) {
                 Card(
@@ -377,83 +474,100 @@ fun AuthScreen(
                 enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(58.dp)
                     .testTag("google_sign_in_button"),
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Gold500,
-                    contentColor = Emerald950
-                )
+                    containerColor = Cyan400,
+                    contentColor = Sapphire950
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = Emerald950,
+                        color = Sapphire950,
                         strokeWidth = 2.5.dp
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.Default.Lock,
+                        imageVector = Icons.Default.Fingerprint,
                         contentDescription = "Sign in with Google",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Sign in with Google to Access Vault",
+                        text = "Continue with Google Sign-In",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Step 1: Authenticate your device session with Google Sign-In.\nStep 2: Enter your Member ID / Mobile Number & PIN or Admin PIN.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Shield,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.55f),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "End-to-End TLS + On-Device AES-256-GCM Vault",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.55f)
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun FeatureRow(
+private fun BentoFeatureTile(
+    modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     subtitle: String
 ) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.06f)
+        ),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(Emerald800),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Gold400,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-        Spacer(modifier = Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(Sapphire800),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Cyan300,
+                    modifier = Modifier.size(19.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.75f)
+                color = Color.White.copy(alpha = 0.7f)
             )
         }
     }

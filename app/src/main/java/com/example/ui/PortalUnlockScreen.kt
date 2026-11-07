@@ -1,5 +1,6 @@
 package com.example.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,15 +39,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,14 +63,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.data.model.DecryptedMember
-import com.example.ui.theme.Emerald100
-import com.example.ui.theme.Emerald700
-import com.example.ui.theme.Emerald800
-import com.example.ui.theme.Emerald900
-import com.example.ui.theme.Emerald950
-import com.example.ui.theme.Gold400
-import com.example.ui.theme.Gold500
-import com.example.ui.theme.Gold600
+import com.example.ui.theme.AppTheme
+import com.example.ui.theme.Champagne500
+import com.example.ui.theme.Cyan300
+import com.example.ui.theme.Cyan400
+import com.example.ui.theme.Sapphire600
+import com.example.ui.theme.Sapphire700
+import com.example.ui.theme.Sapphire800
+import com.example.ui.theme.Sapphire900
+import com.example.ui.theme.Sapphire950
 
 @Composable
 fun PortalUnlockScreen(
@@ -113,40 +111,49 @@ fun PortalUnlockScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Top Identity Banner
+            // Neo-Bank Header Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Emerald900)
+                shape = RoundedCornerShape(28.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level3)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(Emerald950, Emerald800)
+                            Brush.linearGradient(
+                                colors = listOf(Sapphire950, Sapphire900, Sapphire800)
                             )
                         )
-                        .padding(20.dp)
+                        .padding(22.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.EnhancedEncryption,
-                                contentDescription = null,
-                                tint = Gold400,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "FRIENDSHIP ZONE (2005) • KALIR BAZAR",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Gold400
-                            )
+                        Surface(
+                            color = Cyan400.copy(alpha = 0.16f),
+                            shape = RoundedCornerShape(50),
+                            border = BorderStroke(1.dp, Cyan400.copy(alpha = 0.35f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.EnhancedEncryption,
+                                    contentDescription = null,
+                                    tint = Cyan300,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "FRIENDSHIP ZONE (2005)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Cyan300
+                                )
+                            }
                         }
                         IconButton(
                             onClick = onSignOut,
@@ -160,16 +167,17 @@ fun PortalUnlockScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Multi-Device Account Access",
-                        style = MaterialTheme.typography.headlineMedium,
+                        text = "Kalir Bazar Digital Vault",
+                        style = MaterialTheme.typography.headlineLarge,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Signed in as ${userEmail ?: userDisplayName ?: "Authenticated Device"}",
+                        text = "Active Session: ${userEmail ?: userDisplayName ?: "Authenticated Device"}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.78f)
+                        color = Color.White.copy(alpha = 0.75f)
                     )
                 }
             }
@@ -177,7 +185,7 @@ fun PortalUnlockScreen(
             if (statusMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     )
@@ -191,16 +199,17 @@ fun PortalUnlockScreen(
                 }
             }
 
-            // Fast-Access Card if Admin is already verified on this account
+            // Verified Admin Quick-Launch Banner
             if (isAdminVerified) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("verified_admin_card"),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    ),
+                    border = BorderStroke(1.dp, Sapphire600.copy(alpha = 0.3f))
                 ) {
                     Row(
                         modifier = Modifier
@@ -215,26 +224,26 @@ fun PortalUnlockScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(CircleShape)
-                                    .background(Emerald900),
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Sapphire900),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AdminPanelSettings,
                                     contentDescription = null,
-                                    tint = Gold400
+                                    tint = Cyan300
                                 )
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Kalir Bazar Admin Verified",
+                                    text = "Committee Admin Verified",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Manage members, profiles, and transactions",
+                                    text = "Full access to members & ledger",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -242,76 +251,124 @@ fun PortalUnlockScreen(
                         Button(
                             onClick = onEnterAdminDirectly,
                             modifier = Modifier.testTag("enter_admin_console_button"),
+                            shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Emerald900,
+                                containerColor = Sapphire800,
                                 contentColor = Color.White
                             )
                         ) {
-                            Text("Open Admin")
+                            Text("Admin Console", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
-            // Fast-Access Cards for already-bound Member Accounts on this device/UID
+            // Linked Member Passbooks on This Device
             if (boundMembersState is UiState.Success && boundMembersState.data.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level1),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = "Synchronized Member Accounts on This Device",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Synced Member Passbooks",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Text(
+                                    text = "${boundMembersState.data.size} Linked",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
                         boundMembersState.data.forEach { member ->
                             Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .clip(RoundedCornerShape(18.dp))
                                     .clickable { onSelectBoundMember(member.docId) }
                                     .testTag("bound_member_card_${member.memberId}"),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                                shape = RoundedCornerShape(14.dp)
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                shape = RoundedCornerShape(18.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(14.dp),
+                                        .padding(16.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = member.name,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            text = "ID: ${member.memberId} • Mobile: ${member.mobileNumber}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Text(
-                                            text = "Total Deposited: ৳${formatCurrency(member.totalDeposited)}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Emerald700,
-                                            fontWeight = FontWeight.SemiBold
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(44.dp)
+                                                .clip(CircleShape)
+                                                .background(Sapphire800),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = member.name.take(1).uppercase(),
+                                                style = MaterialTheme.typography.titleLarge,
+                                                color = Cyan300
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column {
+                                            Text(
+                                                text = member.name,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                text = "${member.memberId} • ${member.mobileNumber}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = "Deposited: ৳${formatCurrency(member.totalDeposited)}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Sapphire600,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(Sapphire600.copy(alpha = 0.12f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                            contentDescription = "Open Member Dashboard",
+                                            tint = Sapphire600,
+                                            modifier = Modifier.size(18.dp)
                                         )
                                     }
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Open Member Dashboard",
-                                        tint = Emerald700
-                                    )
                                 }
                             }
                         }
@@ -319,57 +376,59 @@ fun PortalUnlockScreen(
                 }
             }
 
-            // Tabbed Login Card: Member ID/Mobile + PIN OR Admin PIN
+            // Modern Segmented Pill Switcher + Portal Form Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = AppTheme.elevation.level2),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    TabRow(
-                        selectedTabIndex = selectedTab,
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                Column(modifier = Modifier.padding(20.dp)) {
+                    // Segmented Pill Switcher
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        shape = RoundedCornerShape(50),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Tab(
-                            selected = selectedTab == 0,
-                            onClick = { selectedTab = 0 },
-                            modifier = Modifier.testTag("tab_member_login"),
-                            text = { Text("Member Login") },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        Tab(
-                            selected = selectedTab == 1,
-                            onClick = { selectedTab = 1 },
-                            modifier = Modifier.testTag("tab_admin_login"),
-                            text = { Text("Admin Console") },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.AdminPanelSettings,
-                                    contentDescription = null
-                                )
-                            }
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                        ) {
+                            SegmentedPillButton(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("tab_member_login"),
+                                selected = selectedTab == 0,
+                                icon = Icons.Default.Person,
+                                title = "Member Passbook",
+                                onClick = { selectedTab = 0 }
+                            )
+                            SegmentedPillButton(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("tab_admin_login"),
+                                selected = selectedTab == 1,
+                                icon = Icons.Default.AdminPanelSettings,
+                                title = "Admin Console",
+                                onClick = { selectedTab = 1 }
+                            )
+                        }
                     }
 
+                    Spacer(modifier = Modifier.height(20.dp))
+
                     if (selectedTab == 0) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Text(
-                                text = "Sign In with Member ID or Mobile Number & PIN",
+                                text = "Sync Member Passbook",
                                 style = MaterialTheme.typography.titleLarge
                             )
                             Text(
-                                text = "Enter the Member ID (e.g., FZ-2005-001) or Mobile Number created by the Admin along with your secret PIN to sync your account on this device.",
+                                text = "Log in from any device using your Admin-assigned Member ID or Mobile Number and secret PIN.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -385,6 +444,7 @@ fun PortalUnlockScreen(
                                         contentDescription = null
                                     )
                                 },
+                                shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -394,7 +454,7 @@ fun PortalUnlockScreen(
                             OutlinedTextField(
                                 value = memberPin,
                                 onValueChange = { memberPin = it },
-                                label = { Text("Member Login PIN") },
+                                label = { Text("Secret Login PIN") },
                                 placeholder = { Text("Enter 4+ digit PIN") },
                                 leadingIcon = {
                                     Icon(
@@ -412,6 +472,7 @@ fun PortalUnlockScreen(
                                 },
                                 visualTransformation = if (showMemberPin) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -423,11 +484,11 @@ fun PortalUnlockScreen(
                                 enabled = !isBusy && memberIdentifier.isNotBlank() && memberPin.isNotBlank(),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(52.dp)
+                                    .height(54.dp)
                                     .testTag("member_unlock_button"),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = RoundedCornerShape(50),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Emerald900,
+                                    containerColor = Sapphire700,
                                     contentColor = Color.White
                                 )
                             ) {
@@ -444,7 +505,7 @@ fun PortalUnlockScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Sync & Open Member Dashboard",
+                                        text = "Unlock & Sync Member Passbook",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -452,16 +513,13 @@ fun PortalUnlockScreen(
                             }
                         }
                     } else {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Text(
-                                text = "Kalir Bazar Committee Admin Login",
+                                text = "Committee Admin Authorization",
                                 style = MaterialTheme.typography.titleLarge
                             )
                             Text(
-                                text = "Admins can create member accounts, edit member & nominee profiles, and record or edit deposits and withdrawals across all devices.",
+                                text = "Authorized Kalir Bazar administrators can create member accounts, edit profiles, and record financial transactions.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -476,6 +534,7 @@ fun PortalUnlockScreen(
                                         contentDescription = null
                                     )
                                 },
+                                shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -485,7 +544,7 @@ fun PortalUnlockScreen(
                             OutlinedTextField(
                                 value = adminPin,
                                 onValueChange = { adminPin = it },
-                                label = { Text("Committee Admin PIN (Default: 2005)") },
+                                label = { Text("Committee Master PIN (Default: 2005)") },
                                 placeholder = { Text("Enter Admin PIN") },
                                 leadingIcon = {
                                     Icon(
@@ -503,6 +562,7 @@ fun PortalUnlockScreen(
                                 },
                                 visualTransformation = if (showAdminPin) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                                shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -514,18 +574,18 @@ fun PortalUnlockScreen(
                                 enabled = !isBusy && (isAdminVerified || adminPin.isNotBlank()),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(52.dp)
+                                    .height(54.dp)
                                     .testTag("admin_unlock_button"),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = RoundedCornerShape(50),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Gold600,
-                                    contentColor = Color.White
+                                    containerColor = Champagne500,
+                                    contentColor = Sapphire950
                                 )
                             ) {
                                 if (isBusy) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(22.dp),
-                                        color = Color.White,
+                                        color = Sapphire950,
                                         strokeWidth = 2.dp
                                     )
                                 } else {
@@ -545,6 +605,44 @@ fun PortalUnlockScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SegmentedPillButton(
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .height(44.dp)
+            .clip(RoundedCornerShape(50))
+            .clickable { onClick() },
+        color = if (selected) Sapphire800 else Color.Transparent,
+        shape = RoundedCornerShape(50)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (selected) Cyan300 else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+            )
         }
     }
 }
