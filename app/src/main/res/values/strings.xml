@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Friendship Zone</string>
+    <string name="org_full_title">Friendship Zone (2005)</string>
+    <string name="org_subtitle">Kalir Bazar • Cooperative Savings &amp; Member Ledger</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="encryption_badge_label">AES-256-GCM Encrypted • Real-Time Sync</string>
+    <string name="member_dashboard_title">Member Dashboard</string>
+    <string name="admin_console_title">Admin Ledger Console</string>
+    <string name="total_deposited_label">Total Deposited Money</string>
+    <string name="monthly_summary_title">Monthly Transaction Summary</string>
+    <string name="transaction_history_title">Transaction History</string>
+    <string name="change_pin_title">Change Login PIN</string>
+</resources>

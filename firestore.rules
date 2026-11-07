@@ -1,0 +1,252 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Bootstrapped Admin + Verified Admin Registry lookup
+    // SHA-256 of default committee admin code "2005" is "f148f748d88823c5266f24906f8019a0dc2b1184c90364830c023a011b08a196"
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        ('email' in request.auth.token &&
+         'email_verified' in request.auth.token &&
+         request.auth.token.email == 'dragonboy20002@gmail.com' &&
+         request.auth.token.email_verified == true)
+      );
+    }
+
+    // 3. Schema Validation Blueprints
+    function isValidAdminProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.adminCodeHash is string && data.adminCodeHash.size() == 64 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMemberAccount(data) {
+      return data.memberId is string && data.memberId.size() >= 1 && data.memberId.size() <= 64 &&
+             data.encryptedName is string && data.encryptedName.size() >= 1 && data.encryptedName.size() <= 512 &&
+             data.encryptedAddress is string && data.encryptedAddress.size() >= 1 && data.encryptedAddress.size() <= 1024 &&
+             data.encryptedMobile is string && data.encryptedMobile.size() >= 1 && data.encryptedMobile.size() <= 512 &&
+             data.encryptedNid is string && data.encryptedNid.size() >= 1 && data.encryptedNid.size() <= 512 &&
+             data.encryptedNomineeName is string && data.encryptedNomineeName.size() >= 1 && data.encryptedNomineeName.size() <= 512 &&
+             data.encryptedNomineeAddress is string && data.encryptedNomineeAddress.size() >= 1 && data.encryptedNomineeAddress.size() <= 1024 &&
+             data.encryptedNomineeNid is string && data.encryptedNomineeNid.size() >= 1 && data.encryptedNomineeNid.size() <= 512 &&
+             data.pinHash is string && data.pinHash.size() == 64 &&
+             data.mobileLookupHash is string && data.mobileLookupHash.size() == 64 &&
+             data.memberIdLookupHash is string && data.memberIdLookupHash.size() == 64 &&
+             data.lastBindProof is string && data.lastBindProof.size() >= 1 && data.lastBindProof.size() <= 256 &&
+             data.totalDeposited is int && data.totalDeposited >= 0 && data.totalDeposited <= 1000000000 &&
+             data.totalWithdrawn is int && data.totalWithdrawn >= 0 && data.totalWithdrawn <= 1000000000 &&
+             data.authorizedUids is list && data.authorizedUids.size() <= 10 &&
+             (data.authorizedUids.size() == 0 || data.authorizedUids[0] is string) &&
+             data.transactionIds is list && data.transactionIds.size() <= 100 &&
+             (data.transactionIds.size() == 0 || data.transactionIds[0] is string) &&
+             data.createdByUid is string && data.createdByUid.size() >= 1 && data.createdByUid.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMemberBinding(data) {
+      return data.memberDocId is string && isValidId(data.memberDocId) &&
+             data.createdByUid is string && data.createdByUid.size() >= 1 && data.createdByUid.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidTransactionRecord(data) {
+      return data.memberDocId is string && isValidId(data.memberDocId) &&
+             data.memberId is string && data.memberId.size() >= 1 && data.memberId.size() <= 64 &&
+             data.encryptedMemberName is string && data.encryptedMemberName.size() >= 1 && data.encryptedMemberName.size() <= 512 &&
+             data.type is string && (data.type == 'DEPOSIT' || data.type == 'WITHDRAWAL') &&
+             data.amount is int && data.amount > 0 && data.amount <= 100000000 &&
+             data.monthYear is string && data.monthYear.size() == 7 && data.monthYear.matches('^[0-9]{4}-[0-9]{2}$') &&
+             data.transactionDate is int && data.transactionDate > 0 &&
+             data.encryptedNote is string && data.encryptedNote.size() >= 1 && data.encryptedNote.size() <= 1024 &&
+             data.receiptNumber is string && data.receiptNumber.size() >= 1 && data.receiptNumber.size() <= 64 &&
+             data.authorizedUids is list && data.authorizedUids.size() <= 10 &&
+             (data.authorizedUids.size() == 0 || data.authorizedUids[0] is string) &&
+             data.createdByUid is string && data.createdByUid.size() >= 1 && data.createdByUid.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 4. Collection Rules: /admins/{adminUid}
+    match /admins/{adminUid} {
+      allow get: if isSignedIn() && isValidId(adminUid) && (request.auth.uid == adminUid || isAdmin());
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+                       isValidId(adminUid) &&
+                       request.auth.uid == adminUid &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'adminCodeHash', 'displayName', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'adminCodeHash', 'displayName', 'createdAt', 'updatedAt']) &&
+                       isValidAdminProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(adminUid) &&
+                       isValidAdminProfile(incoming()) &&
+                       request.auth.uid == adminUid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['adminCodeHash', 'displayName', 'updatedAt']);
+
+      allow delete: if isSignedIn() && isValidId(adminUid) && request.auth.uid == adminUid;
+    }
+
+    // 5. Collection Rules: /members/{memberDocId}
+    match /members/{memberDocId} {
+      allow get: if isSignedIn() &&
+                    isValidId(memberDocId) &&
+                    (isAdmin() || request.auth.uid in resource.data.authorizedUids);
+
+      allow list: if isSignedIn() &&
+                     (isAdmin() || request.auth.uid in resource.data.authorizedUids);
+
+      allow create: if isSignedIn() &&
+                       isValidId(memberDocId) &&
+                       isAdmin() &&
+                       incoming().createdByUid == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'memberId', 'encryptedName', 'encryptedAddress', 'encryptedMobile',
+                         'encryptedNid', 'encryptedNomineeName', 'encryptedNomineeAddress',
+                         'encryptedNomineeNid', 'pinHash', 'mobileLookupHash', 'memberIdLookupHash',
+                         'lastBindProof', 'totalDeposited', 'totalWithdrawn', 'authorizedUids',
+                         'transactionIds', 'createdByUid', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'memberId', 'encryptedName', 'encryptedAddress', 'encryptedMobile',
+                         'encryptedNid', 'encryptedNomineeName', 'encryptedNomineeAddress',
+                         'encryptedNomineeNid', 'pinHash', 'mobileLookupHash', 'memberIdLookupHash',
+                         'lastBindProof', 'totalDeposited', 'totalWithdrawn', 'authorizedUids',
+                         'transactionIds', 'createdByUid', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidMemberAccount(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(memberDocId) &&
+                       isValidMemberAccount(incoming()) &&
+                       incoming().createdByUid == existing().createdByUid &&
+                       incoming().createdAt == existing().createdAt && (
+                         // Action 1: Admin edits member profile, PIN, or financial totals
+                         (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+                           'memberId', 'encryptedName', 'encryptedAddress', 'encryptedMobile',
+                           'encryptedNid', 'encryptedNomineeName', 'encryptedNomineeAddress',
+                           'encryptedNomineeNid', 'pinHash', 'mobileLookupHash', 'memberIdLookupHash',
+                           'lastBindProof', 'totalDeposited', 'totalWithdrawn', 'authorizedUids',
+                           'transactionIds', 'updatedAt'
+                         ])) ||
+                         // Action 2: Authorized Member changes their own login PIN
+                         ((request.auth.uid in existing().authorizedUids) &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['pinHash', 'lastBindProof', 'updatedAt'])) ||
+                         // Action 3: Multi-device login binding (proves knowledge of existing pinHash)
+                         (incoming().pinHash == existing().pinHash &&
+                          incoming().lastBindProof == (request.auth.uid + ':' + existing().pinHash) &&
+                          (request.auth.uid in incoming().authorizedUids) &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['authorizedUids', 'lastBindProof', 'updatedAt']))
+                       );
+
+      allow delete: if isSignedIn() && isValidId(memberDocId) && isAdmin();
+    }
+
+    // 6. Collection Rules: /member_bindings/{bindingHash}
+    // Non-PII capability hash index: document ID is SHA256(identifier + pinHash)
+    match /member_bindings/{bindingHash} {
+      allow get: if isSignedIn() && isValidId(bindingHash);
+      allow list: if isSignedIn() && isAdmin();
+
+      allow create: if isSignedIn() &&
+                       isValidId(bindingHash) &&
+                       incoming().createdByUid == request.auth.uid &&
+                       incoming().keys().hasAll(['memberDocId', 'createdByUid', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['memberDocId', 'createdByUid', 'createdAt', 'updatedAt']) &&
+                       isValidMemberBinding(incoming()) &&
+                       exists(/databases/$(database)/documents/members/$(incoming().memberDocId)) &&
+                       (isAdmin() || (request.auth.uid in get(/databases/$(database)/documents/members/$(incoming().memberDocId)).data.authorizedUids));
+
+      allow update: if isSignedIn() &&
+                       isValidId(bindingHash) &&
+                       isValidMemberBinding(incoming()) &&
+                       isAdmin() &&
+                       incoming().createdByUid == existing().createdByUid &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['memberDocId', 'updatedAt']);
+
+      allow delete: if isSignedIn() &&
+                       isValidId(bindingHash) &&
+                       (isAdmin() || (
+                         exists(/databases/$(database)/documents/members/$(resource.data.memberDocId)) &&
+                         (request.auth.uid in get(/databases/$(database)/documents/members/$(resource.data.memberDocId)).data.authorizedUids)
+                       ));
+    }
+
+    // 7. Collection Rules: /transactions/{transactionId}
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() &&
+                    isValidId(transactionId) &&
+                    (isAdmin() || request.auth.uid in resource.data.authorizedUids);
+
+      allow list: if isSignedIn() &&
+                     (isAdmin() || request.auth.uid in resource.data.authorizedUids);
+
+      allow create: if isSignedIn() &&
+                       isValidId(transactionId) &&
+                       isAdmin() &&
+                       incoming().createdByUid == request.auth.uid &&
+                       exists(/databases/$(database)/documents/members/$(incoming().memberDocId)) &&
+                       incoming().keys().hasAll([
+                         'memberDocId', 'memberId', 'encryptedMemberName', 'type', 'amount',
+                         'monthYear', 'transactionDate', 'encryptedNote', 'receiptNumber',
+                         'authorizedUids', 'createdByUid', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'memberDocId', 'memberId', 'encryptedMemberName', 'type', 'amount',
+                         'monthYear', 'transactionDate', 'encryptedNote', 'receiptNumber',
+                         'authorizedUids', 'createdByUid', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidTransactionRecord(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(transactionId) &&
+                       isValidTransactionRecord(incoming()) &&
+                       incoming().createdByUid == existing().createdByUid &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().memberDocId == existing().memberDocId && (
+                         // Action 1: Admin edits transaction details
+                         (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+                           'memberId', 'encryptedMemberName', 'type', 'amount', 'monthYear',
+                           'transactionDate', 'encryptedNote', 'receiptNumber', 'authorizedUids', 'updatedAt'
+                         ])) ||
+                         // Action 2: Newly bound device of the owning Member syncs its UID into authorizedUids
+                         (exists(/databases/$(database)/documents/members/$(existing().memberDocId)) &&
+                          (request.auth.uid in get(/databases/$(database)/documents/members/$(existing().memberDocId)).data.authorizedUids) &&
+                          (request.auth.uid in incoming().authorizedUids) &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['authorizedUids', 'updatedAt']))
+                       );
+
+      allow delete: if isSignedIn() && isValidId(transactionId) && isAdmin();
+    }
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "entities": {
+    "AdminProfile": {
+      "title": "AdminProfile",
+      "description": "Represents an authorized administrator of Friendship Zone (2005), Kalir Bazar.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated Firebase Auth UID of the administrator."
+        },
+        "adminCodeHash": {
+          "type": "string",
+          "description": "SHA-256 hex digest of the verified committee master PIN."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Administrator display name."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the admin profile was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the admin profile was last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "adminCodeHash",
+        "displayName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MemberAccount": {
+      "title": "MemberAccount",
+      "description": "Represents a member profile and cooperative savings account with AES-256-GCM encrypted PII fields.",
+      "type": "object",
+      "properties": {
+        "memberId": {
+          "type": "string",
+          "description": "Unique human-readable Member ID assigned by admin (e.g., FZ-2005-001)."
+        },
+        "encryptedName": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted full name of the member."
+        },
+        "encryptedAddress": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted residential address of the member."
+        },
+        "encryptedMobile": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted mobile number of the member."
+        },
+        "encryptedNid": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted National ID (NID) number of the member."
+        },
+        "encryptedNomineeName": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted full name of the member's nominee."
+        },
+        "encryptedNomineeAddress": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted residential address of the nominee."
+        },
+        "encryptedNomineeNid": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted National ID (NID) number of the nominee."
+        },
+        "pinHash": {
+          "type": "string",
+          "description": "SHA-256 hash of the member's login PIN."
+        },
+        "mobileLookupHash": {
+          "type": "string",
+          "description": "SHA-256 blind index hash of the normalized mobile number."
+        },
+        "memberIdLookupHash": {
+          "type": "string",
+          "description": "SHA-256 blind index hash of the normalized Member ID."
+        },
+        "lastBindProof": {
+          "type": "string",
+          "description": "Cryptographic proof string (uid:pinHash) used when binding a new device."
+        },
+        "totalDeposited": {
+          "type": "integer",
+          "description": "Total cumulative deposited amount in BDT."
+        },
+        "totalWithdrawn": {
+          "type": "integer",
+          "description": "Total cumulative withdrawn amount in BDT."
+        },
+        "authorizedUids": {
+          "type": "array",
+          "description": "Bounded list (max 10) of Firebase Auth UIDs authorized to view this member account."
+        },
+        "transactionIds": {
+          "type": "array",
+          "description": "Bounded list (max 100) of transaction document IDs associated with this member."
+        },
+        "createdByUid": {
+          "type": "string",
+          "description": "UID of the admin who created this member profile."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the member profile was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the member profile was last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "memberId",
+        "encryptedName",
+        "encryptedAddress",
+        "encryptedMobile",
+        "encryptedNid",
+        "encryptedNomineeName",
+        "encryptedNomineeAddress",
+        "encryptedNomineeNid",
+        "pinHash",
+        "mobileLookupHash",
+        "memberIdLookupHash",
+        "lastBindProof",
+        "totalDeposited",
+        "totalWithdrawn",
+        "authorizedUids",
+        "transactionIds",
+        "createdByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MemberBinding": {
+      "title": "MemberBinding",
+      "description": "Non-PII capability lookup index mapping SHA256(identifier + pinHash) to a memberDocId for multi-device login.",
+      "type": "object",
+      "properties": {
+        "memberDocId": {
+          "type": "string",
+          "description": "Target document ID in the members collection."
+        },
+        "createdByUid": {
+          "type": "string",
+          "description": "UID of the user who created this binding record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the binding was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the binding was updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "memberDocId",
+        "createdByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TransactionRecord": {
+      "title": "TransactionRecord",
+      "description": "Represents a financial deposit or withdrawal transaction for a member with AES-256-GCM encrypted notes.",
+      "type": "object",
+      "properties": {
+        "memberDocId": {
+          "type": "string",
+          "description": "Document ID of the member in the members collection."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Human-readable Member ID (e.g., FZ-2005-001)."
+        },
+        "encryptedMemberName": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted member name."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["DEPOSIT", "WITHDRAWAL"],
+          "description": "Transaction type: DEPOSIT or WITHDRAWAL."
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Transaction amount in BDT (> 0)."
+        },
+        "monthYear": {
+          "type": "string",
+          "description": "Accounting month and year in YYYY-MM format (e.g., 2026-11)."
+        },
+        "transactionDate": {
+          "type": "integer",
+          "description": "Transaction date in epoch milliseconds."
+        },
+        "encryptedNote": {
+          "type": "string",
+          "description": "AES-256-GCM encrypted transaction remarks or receipt details."
+        },
+        "receiptNumber": {
+          "type": "string",
+          "description": "Official cooperative receipt or voucher reference number."
+        },
+        "authorizedUids": {
+          "type": "array",
+          "description": "Bounded list (max 10) of Firebase Auth UIDs authorized to view this transaction."
+        },
+        "createdByUid": {
+          "type": "string",
+          "description": "UID of the admin who recorded the transaction."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the transaction was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the transaction was last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "memberDocId",
+        "memberId",
+        "encryptedMemberName",
+        "type",
+        "amount",
+        "monthYear",
+        "transactionDate",
+        "encryptedNote",
+        "receiptNumber",
+        "authorizedUids",
+        "createdByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{adminUid}": {
+      "schema": { "$ref": "#/entities/AdminProfile" },
+      "description": "Collection of verified administrators for Friendship Zone (2005), Kalir Bazar."
+    },
+    "/members/{memberDocId}": {
+      "schema": { "$ref": "#/entities/MemberAccount" },
+      "description": "Collection of encrypted member profiles and savings balances."
+    },
+    "/member_bindings/{bindingHash}": {
+      "schema": { "$ref": "#/entities/MemberBinding" },
+      "description": "Non-PII capability hash index for multi-device Member ID/Mobile + PIN login."
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/TransactionRecord" },
+      "description": "Collection of member deposit and withdrawal transactions."
+    }
+  }
+}

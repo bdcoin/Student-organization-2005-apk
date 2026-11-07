@@ -1,0 +1,6 @@
+{
+  "name": "Friendship Zone",
+  "description": "Real-time encrypted cooperative savings and member deposit management app for Friendship Zone (2005), Kalir Bazar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
